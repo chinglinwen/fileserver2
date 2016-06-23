@@ -66,6 +66,7 @@ curl localhost:8000/upload -F file=test -F data="test body" -F truncate=yes
 ### Usage
 
 ```
+$ fileserver2 -h
 Usage of fileserver2:
   -author
         Show author.
