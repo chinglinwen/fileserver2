@@ -47,9 +47,9 @@ file: example.log deleted
 ```
 
 ### Truncate
-if file not exists, it will create it
+if file not exist, it will create the file
 
-if file exists, by default it will append to the file
+if file exist, by default it will append to the file
 
 use truncate to overwrite the file
 
