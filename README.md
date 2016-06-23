@@ -63,4 +63,19 @@ or
 curl localhost:8000/upload -F file=test -F data="test body" -F truncate=yes 
 ```
 
+### Usage
+
+```
+Usage of fileserver2:
+  -author
+        Show author.
+  -path string
+        File server path. (default ".")
+  -port string
+        Port number. (default "8000")
+  -v    Show version.
+```
+
+Notes: path specify where the file will be stored
+
 end
