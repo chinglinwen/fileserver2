@@ -75,6 +75,12 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// multipart parameter "file" need to specified when upload
 	files := formdata.File["file"]
+
+	if len(files) == 0 {
+		fmt.Fprintf(w, "need to provide file(multipart form) or data\n")
+		return
+	}
+
 	for i, _ := range files {
 		file, err := files[i].Open()
 		if err != nil {
@@ -110,8 +116,5 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			note = "( truncated )"
 		}
 		fmt.Fprintf(w, "Files uploaded successfully : %v %v bytes %v\n", f, n, note)
-		return
 	}
-
-	fmt.Fprintf(w, "need to provide file(multipart form) or data\n")
 }
