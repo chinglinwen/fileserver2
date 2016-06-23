@@ -1,18 +1,18 @@
-# fileserver2
+# Fileserver2
 
 A http download and upload server
 
-## features
+## Features
 
-* default to append
-* delete support
-* truncate support
-* form value upload
-* file upload
+* Default to append
+* Delete support
+* Truncate support
+* Form value upload
+* File upload
 
-## examples
+## Examples
 
-### file upload
+### File upload
 
 ```
 [~ t1 ] $ cat example.log 
@@ -22,7 +22,7 @@ Files uploaded successfully : example.log 13 bytes
 [~ t1 ] $
 ```
 
-results
+Results
 
 ```
 [~ t ] $ cat example.log 
@@ -30,7 +30,7 @@ example body
 [~ t ] $ 
 ```
 
-### form upload
+### Form upload
 
 ```
 [~ t1 ] $ curl localhost:8000/upload -F file=test -F data="test body"
@@ -38,7 +38,7 @@ Files uploaded successfully : test 9 bytes
 [~ t1 ] $ 
 ```
 
-### delete
+### Delete
 
 ```
 [~ t1 ] $ curl localhost:8000/upload -F file=example.log -F delete=yes 
@@ -46,8 +46,9 @@ file: example.log deleted
 [~ t1 ] $ 
 ```
 
-### truncate
+### Truncate
 if file not exists, it will create it
+
 if file exists, by default it will append to the file
 
 use truncate to overwrite the file
