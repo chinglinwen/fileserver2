@@ -76,6 +76,21 @@ Usage of fileserver2:
   -v    Show version.
 ```
 
-Notes: path specify where the file will be stored
+Notes: **path** specify where the file will be stored
+
+## Web examples
+
+Choose files
+
+![choose_files](doc/fileserver2-web1.png)
+
+Info
+
+![choose_files](doc/fileserver2-web2.png)
+
+Results
+
+![choose_files](doc/fileserver2-web3.png)
+
 
 end
