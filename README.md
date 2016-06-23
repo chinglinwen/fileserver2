@@ -94,5 +94,28 @@ Notes: **path** specify where the file will be stored
 
 ![choose_files](doc/fileserver2-web3.png)
 
+## Download example
+
+### Web
+
+![download](doc/fileserver2-web4.png)
+
+### CLI
+
+```
+[~ t1 ] $ wget "localhost:8000/Track 1.wav"
+--2016-06-23 11:43:18--  http://localhost:8000/Track%201.wav
+Resolving localhost... ::1, 127.0.0.1
+Connecting to localhost|::1|:8000... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 26869360 (26M) [audio/x-wav]
+Saving to: `Track 1.wav'
+
+100%[=============================================================================>] 26,869,360  --.-K/s   in 0.1s    
+
+2016-06-23 11:43:18 (240 MB/s) - `Track 1.wav' saved [26869360/26869360]
+
+[~ t1 ] $
+```
 
 end
