@@ -78,17 +78,18 @@ Usage of fileserver2:
 
 Notes: **path** specify where the file will be stored
 
+
 ## Web examples
 
-Choose files
+### Choose files
 
 ![choose_files](doc/fileserver2-web1.png)
 
-Info
+### Info
 
 ![choose_files](doc/fileserver2-web2.png)
 
-Results
+### Results
 
 ![choose_files](doc/fileserver2-web3.png)
 
