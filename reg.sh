@@ -17,7 +17,8 @@ service="$( cat <<eof
 eof
 )"
 
-url="http://192.168.100.94:8500/v1/agent/service/register"
+url="http://localhost:8500/v1/agent/service/register"
 curl -X PUT "$url" -d "$service"
 
 # end.
+

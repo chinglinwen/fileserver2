@@ -118,10 +118,18 @@ Saving to: `Track 1.wav'
 [~ t1 ] $
 ```
 
-## Service registering
+## Service register and deregister
+
+register
 
 ```
 ./reg.sh
+```
+
+deregister
+
+```
+./dereg.sh
 ```
 
 ![register](doc/reg.png)
