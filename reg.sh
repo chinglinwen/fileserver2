@@ -10,7 +10,7 @@ service="$( cat <<eof
   "Address":"192.168.100.94",
   "Port": 8000,
   "Check": {
-    "HTTP": "http://192.168.100.94:8000",
+    "HTTP": "http://localhost:8000",
     "Interval": "3s"
   }
 }
