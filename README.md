@@ -118,4 +118,12 @@ Saving to: `Track 1.wav'
 [~ t1 ] $
 ```
 
+## Service registering
+
+```
+./reg.sh
+```
+
+![register](doc/reg.png)
+
 end
