@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	ospath "path"
+	"regexp"
 	"strings"
 )
 
@@ -12,13 +14,20 @@ import (
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	targetFile := r.FormValue("file")
+
+	var validPath = regexp.MustCompile(`.*\.\.\/.*`)
+	if validPath.MatchString(targetFile) {
+		fmt.Fprintf(w, "file path should not contain the two dot\n")
+		return
+	}
+
 	delete := r.FormValue("delete")
 	if delete == "yes" {
 		if targetFile == "" {
 			fmt.Fprintln(w, "filename not specified")
 			return
 		}
-		err := os.Remove(targetFile)
+		err := os.RemoveAll(path + "/" + targetFile)
 		if err != nil {
 			fmt.Fprintln(w, err)
 			return
@@ -41,6 +50,13 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d := strings.NewReader(data)
+
+		dir := ospath.Dir(targetFile)
+		err := os.MkdirAll(dir, 755)
+		if err != nil {
+			fmt.Fprintln(w, "mkdir error %v\n", err)
+			return
+		}
 
 		out, err := os.OpenFile(path+"/"+targetFile, flags, 0644)
 		if err != nil {
@@ -85,7 +101,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		file, err := files[i].Open()
 		if err != nil {
 			fmt.Fprintln(w, err)
-			return
+			continue
 		}
 		defer file.Close()
 
@@ -98,17 +114,24 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			f = targetFile
 		}
 
+		dir := ospath.Dir(f)
+		err = os.MkdirAll(dir, 755)
+		if err != nil {
+			fmt.Fprintln(w, "mkdir error %v\n", err)
+			continue
+		}
+
 		out, err := os.OpenFile(path+"/"+f, flags, 0644)
 		if err != nil {
 			fmt.Fprintf(w, "Unable to create the file for writing")
-			return
+			continue
 		}
 		defer out.Close()
 
 		n, err := io.Copy(out, file)
 		if err != nil {
 			fmt.Fprintln(w, err)
-			return
+			continue
 		}
 
 		var note string
