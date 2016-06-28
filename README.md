@@ -9,6 +9,7 @@ A http download and upload server
 * Truncate support
 * Form value upload
 * File upload
+* Any level path specify 
 
 ## Examples
 
@@ -35,7 +36,6 @@ example body
 ```
 [~ t1 ] $ curl localhost:8000/upload -F file=test -F data="test body"
 Files uploaded successfully : test 9 bytes 
-[~ t1 ] $ 
 ```
 
 ### Delete
@@ -44,6 +44,11 @@ Files uploaded successfully : test 9 bytes
 [~ t1 ] $ curl localhost:8000/upload -F file=example.log -F delete=yes 
 file: example.log deleted
 [~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F delete=yes  
+file: a/b/c deleted
+[~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="a" -F delete=yes      
+file: a deleted
 ```
 
 ### Truncate
@@ -61,6 +66,18 @@ or
 
 ```
 curl localhost:8000/upload -F file=test -F data="test body" -F truncate=yes 
+```
+
+### Path specify
+```
+[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F data="hello"
+Files uploaded successfully : a/b/c 5 bytes 
+[~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F file=@a.txt 
+Files uploaded successfully : a/b/c 3 bytes 
+[~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="../a/b/c" -F file=@a.txt
+file path should not contain the two dot
 ```
 
 ### Usage
