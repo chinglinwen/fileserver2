@@ -38,6 +38,19 @@ example body
 Files uploaded successfully : test 9 bytes 
 ```
 
+### Path specify
+
+```
+[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F data="hello"
+Files uploaded successfully : a/b/c 5 bytes 
+[~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F file=@a.txt 
+Files uploaded successfully : a/b/c 3 bytes 
+[~ t1 ] $ 
+[~ t1 ] $ curl localhost:8000/upload -F file="../a/b/c" -F file=@a.txt
+file path should not contain the two dot
+```
+
 ### Delete
 
 ```
@@ -52,6 +65,7 @@ file: a deleted
 ```
 
 ### Truncate
+
 if file not exist, it will create the file
 
 if file exist, by default it will append to the file
@@ -66,18 +80,6 @@ or
 
 ```
 curl localhost:8000/upload -F file=test -F data="test body" -F truncate=yes 
-```
-
-### Path specify
-```
-[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F data="hello"
-Files uploaded successfully : a/b/c 5 bytes 
-[~ t1 ] $ 
-[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F file=@a.txt 
-Files uploaded successfully : a/b/c 3 bytes 
-[~ t1 ] $ 
-[~ t1 ] $ curl localhost:8000/upload -F file="../a/b/c" -F file=@a.txt
-file path should not contain the two dot
 ```
 
 ### Usage
