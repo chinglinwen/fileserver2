@@ -20,7 +20,6 @@ A http download and upload server
 example body
 [~ t1 ] $ curl localhost:8000/upload -F file=@example.log
 Files uploaded successfully : example.log 13 bytes 
-[~ t1 ] $
 ```
 
 Results
@@ -28,7 +27,6 @@ Results
 ```
 [~ t ] $ cat example.log 
 example body
-[~ t ] $ 
 ```
 
 ### Form upload
@@ -43,10 +41,10 @@ Files uploaded successfully : test 9 bytes
 ```
 [~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F data="hello"
 Files uploaded successfully : a/b/c 5 bytes 
-[~ t1 ] $ 
+
 [~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F file=@a.txt 
 Files uploaded successfully : a/b/c 3 bytes 
-[~ t1 ] $ 
+
 [~ t1 ] $ curl localhost:8000/upload -F file="../a/b/c" -F file=@a.txt
 file path should not contain the two dot
 ```
@@ -56,10 +54,10 @@ file path should not contain the two dot
 ```
 [~ t1 ] $ curl localhost:8000/upload -F file=example.log -F delete=yes 
 file: example.log deleted
-[~ t1 ] $ 
+
 [~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F delete=yes  
 file: a/b/c deleted
-[~ t1 ] $ 
+
 [~ t1 ] $ curl localhost:8000/upload -F file="a" -F delete=yes      
 file: a deleted
 ```
