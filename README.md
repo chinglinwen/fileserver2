@@ -11,6 +11,12 @@ A http download and upload server
 * File upload
 * Any level path specify 
 
+## Install
+
+```
+go get github.com/chinglinwen/fileserver2
+```
+
 ## Examples
 
 ### File upload
