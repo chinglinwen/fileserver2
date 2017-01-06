@@ -54,7 +54,7 @@ func detector(w http.ResponseWriter, r *http.Request) {
 	}
 	// print logs
 	ip := strings.Split(r.RemoteAddr, ":")[0]
-	log.Println(ip, r.RequestURI)
+	log.Println(ip, r.RequestURI, "visited")
 
 	if strings.HasSuffix(r.RequestURI, "upload") {
 		uploadPageHandler(w, r)

@@ -25,6 +25,10 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ip == "[" {
+		ip = "127.0.0.1"
+	}
+
 	delete := r.FormValue("delete")
 	if delete == "yes" {
 		if targetFile == "" {
