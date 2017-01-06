@@ -12,9 +12,9 @@ func uploadPageHandler(w http.ResponseWriter, r *http.Request) {
 <title>Go upload</title>
 <body>
 <form action="{{.}}/uploadapi" method="post" enctype="multipart/form-data">
-<label for="file">Filenames:</label>
+<label for="file">Files:</label>
 <input type="file" name="file" id="file" multiple> <br>
-filename(with optional path)
+Optional Filename:
 <input type="text" name="file" >
 <input type="submit" name="submit" value="Submit">
 </form>
