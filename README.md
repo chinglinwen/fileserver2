@@ -24,7 +24,7 @@ go get github.com/chinglinwen/fileserver2
 ```
 [~ t1 ] $ cat example.log 
 example body
-[~ t1 ] $ curl localhost:8000/upload -F file=@example.log
+[~ t1 ] $ curl localhost:8000/uploadapi -F file=@example.log
 Files uploaded successfully : example.log 13 bytes 
 ```
 
@@ -38,33 +38,33 @@ example body
 ### Form upload
 
 ```
-[~ t1 ] $ curl localhost:8000/upload -F file=test -F data="test body"
+[~ t1 ] $ curl localhost:8000/uploadapi -F file=test -F data="test body"
 Files uploaded successfully : test 9 bytes 
 ```
 
 ### Path specify
 
 ```
-[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F data="hello"
+[~ t1 ] $ curl localhost:8000/uploadapi -F file="a/b/c" -F data="hello"
 Files uploaded successfully : a/b/c 5 bytes 
 
-[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F file=@a.txt 
+[~ t1 ] $ curl localhost:8000/uploadapi -F file="a/b/c" -F file=@a.txt 
 Files uploaded successfully : a/b/c 3 bytes 
 
-[~ t1 ] $ curl localhost:8000/upload -F file="../a/b/c" -F file=@a.txt
+[~ t1 ] $ curl localhost:8000/uploadapi -F file="../a/b/c" -F file=@a.txt
 file path should not contain the two dot
 ```
 
 ### Delete
 
 ```
-[~ t1 ] $ curl localhost:8000/upload -F file=example.log -F delete=yes 
+[~ t1 ] $ curl localhost:8000/uploadapi -F file=example.log -F delete=yes 
 file: example.log deleted
 
-[~ t1 ] $ curl localhost:8000/upload -F file="a/b/c" -F delete=yes  
+[~ t1 ] $ curl localhost:8000/uploadapi -F file="a/b/c" -F delete=yes  
 file: a/b/c deleted
 
-[~ t1 ] $ curl localhost:8000/upload -F file="a" -F delete=yes      
+[~ t1 ] $ curl localhost:8000/uploadapi -F file="a" -F delete=yes      
 file: a deleted
 ```
 
@@ -77,13 +77,13 @@ if file exist, by default it will append to the file
 use truncate to overwrite the file
 
 ```
-curl localhost:8000/upload -F file=@example.log -F truncate=yes 
+curl localhost:8000/uploadapi -F file=@example.log -F truncate=yes 
 ```
 
 or
 
 ```
-curl localhost:8000/upload -F file=test -F data="test body" -F truncate=yes 
+curl localhost:8000/uploadapi -F file=test -F data="test body" -F truncate=yes 
 ```
 
 ### Usage

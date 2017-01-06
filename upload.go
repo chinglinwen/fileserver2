@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	ospath "path"
@@ -14,6 +15,9 @@ import (
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	targetFile := r.FormValue("file")
+	ip := strings.Split(r.RemoteAddr, ":")[0]
+	uri := strings.NewReplacer("/uploadapi", "").Replace(r.RequestURI)
+	fileurl := ospath.Join(path, uri, targetFile)
 
 	var validPath = regexp.MustCompile(`.*\.\.\/.*`)
 	if validPath.MatchString(targetFile) {
@@ -27,12 +31,13 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, "filename not specified")
 			return
 		}
-		err := os.RemoveAll(path + "/" + targetFile)
+		err := os.RemoveAll(fileurl)
 		if err != nil {
 			fmt.Fprintln(w, err)
 			return
 		}
 		fmt.Fprintf(w, "file: %v deleted\n", targetFile)
+		log.Println(ip, uri, targetFile, "deleted")
 		return
 	}
 
@@ -51,14 +56,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		d := strings.NewReader(data)
 
-		dir := ospath.Dir(targetFile)
+		dir := ospath.Dir(fileurl)
 		err := os.MkdirAll(dir, 755)
 		if err != nil {
 			fmt.Fprintln(w, "mkdir error %v\n", err)
 			return
 		}
 
-		out, err := os.OpenFile(path+"/"+targetFile, flags, 0644)
+		out, err := os.OpenFile(fileurl, flags, 0644)
 		if err != nil {
 			fmt.Fprintf(w, "Unable to create the file for writing")
 			return
@@ -76,7 +81,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			note = "( truncated )"
 		}
 		fmt.Fprintf(w, "Files uploaded successfully : %v %v bytes %v\n", targetFile, n, note)
-
+		log.Println(ip, uri, targetFile, "created")
 		return
 	}
 
@@ -114,14 +119,21 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			f = targetFile
 		}
 
-		dir := ospath.Dir(f)
-		err = os.MkdirAll(dir, 755)
+		var fileurl string
+		if ospath.Dir(targetFile) == "." {
+			fileurl = ospath.Join(path, uri, f)
+		} else {
+			fileurl = ospath.Join(path, f)
+		}
+
+		dir := ospath.Dir(fileurl)
+		err = os.MkdirAll(dir, 0755)
 		if err != nil {
 			fmt.Fprintln(w, "mkdir error %v\n", err)
 			continue
 		}
 
-		out, err := os.OpenFile(path+"/"+f, flags, 0644)
+		out, err := os.OpenFile(fileurl, flags, 0644)
 		if err != nil {
 			fmt.Fprintf(w, "Unable to create the file for writing")
 			continue
@@ -139,5 +151,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			note = "( truncated )"
 		}
 		fmt.Fprintf(w, "Files uploaded successfully : %v %v bytes %v\n", f, n, note)
+		log.Println(ip, uri, f, "created")
 	}
 }

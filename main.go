@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -22,7 +24,7 @@ func main() {
 
 	//Display version info.
 	if *version {
-		fmt.Println("Fileserver2 version=1.0, 2016-6-22")
+		fmt.Println("Fileserver2 version=1.1.0, 2017-1-6")
 		os.Exit(0)
 	}
 
@@ -39,13 +41,26 @@ func main() {
 			path = argsPath
 		}
 	}
-
-	http.HandleFunc("/upload", uploadHandler)
-
-	http.Handle("/", http.FileServer(http.Dir(path)))
+	http.HandleFunc("/", detector)
 
 	err := http.ListenAndServe(":"+port, nil)
 	checkError(err)
+}
+
+func detector(w http.ResponseWriter, r *http.Request) {
+	if strings.HasSuffix(r.RequestURI, "uploadapi") {
+		uploadHandler(w, r)
+		return
+	}
+	// print logs
+	ip := strings.Split(r.RemoteAddr, ":")[0]
+	log.Println(ip, r.RequestURI)
+
+	if strings.HasSuffix(r.RequestURI, "upload") {
+		uploadPageHandler(w, r)
+		return
+	}
+	http.FileServer(http.Dir(path)).ServeHTTP(w, r)
 }
 
 func checkError(err error) {
