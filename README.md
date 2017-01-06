@@ -8,8 +8,9 @@ A http download and upload server
 * Delete support
 * Truncate support
 * Form value upload
-* File upload
+* File upload ( no need extra static index page anymore )
 * Any level path specify 
+* Web Any path upload support
 
 ## Install
 
@@ -53,6 +54,18 @@ Files uploaded successfully : a/b/c 3 bytes
 
 [~ t1 ] $ curl localhost:8000/uploadapi -F file="../a/b/c" -F file=@a.txt
 file path should not contain the two dot
+```
+
+or
+
+```
+[~ t1 ] $ curl localhost:8000/a/b/uploadapi -F file="c" -F data="hello"
+Files uploaded successfully : a/b/c 5 bytes 
+
+[~ t1 ] $ curl localhost:8000/a/b/uploadapi -F file="c" -F file=@a.txt 
+Files uploaded successfully : a/b/c 3 bytes 
+
+[~ t1 ] $ curl localhost:8000/../a/b/uploadapi -F file="c" -F file=@a.txt   # won't work
 ```
 
 ### Delete
@@ -108,6 +121,12 @@ Notes: **path** specify where the file will be stored
 ### Choose files
 
 ![choose_files](doc/fileserver2-web1.png)
+
+### Specify any path in url to upload
+
+![webupload1](doc/webupload1.png)
+
+![webupload2](doc/webupload2.png)
 
 ### Info
 
