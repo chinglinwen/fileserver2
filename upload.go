@@ -20,7 +20,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	fileurl := ospath.Join(path, uri, targetFile)
 
 	var validPath = regexp.MustCompile(`.*\.\.\/.*`)
-	if validPath.MatchString(targetFile) {
+	if validPath.MatchString(fileurl) {
 		fmt.Fprintf(w, "file path should not contain the two dot\n")
 		return
 	}
