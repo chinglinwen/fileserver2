@@ -61,7 +61,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		d := strings.NewReader(data)
 
 		dir := ospath.Dir(fileurl)
-		err := os.MkdirAll(dir, 755)
+		err := os.MkdirAll(dir, 0755)
 		if err != nil {
 			fmt.Fprintln(w, "mkdir error %v\n", err)
 			return
