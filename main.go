@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/natefinch/lumberjack"
 )
 
 var (
@@ -15,16 +17,22 @@ var (
 )
 
 func main() {
-	flag.StringVar(&port, "port", "8000", "Port number.")
-	flag.StringVar(&path, "path", ".", "File server path.")
-	version := flag.Bool("v", false, "Show version.")
-	author := flag.Bool("author", false, "Show author.")
+	flag.StringVar(&port, "port", "8000", "Port number")
+	flag.StringVar(&path, "path", ".", "File server path")
+	version := flag.Bool("version", false, "Show version")
+	author := flag.Bool("author", false, "Show author")
+
+	verbose := flag.Bool("v", false, "output to logfile ( default stdout )")
+	logFile := flag.String("logfile", "fs.log", "log filename and path")
+	logMaxSize := flag.Int("logmaxsize", 500, "log max size(megabytes)")
+	logMaxAge := flag.Int("logmaxage", 28, "log max age (days)")
+	logMaxBackups := flag.Int("logmaxbackups", 3, "log max backups number")
 
 	flag.Parse()
 
 	//Display version info.
 	if *version {
-		fmt.Println("Fileserver2 version=1.1.0, 2017-1-6")
+		fmt.Println("Fileserver2 version=1.2.0, 2017-2-14")
 		os.Exit(0)
 	}
 
@@ -34,15 +42,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(os.Args) == 2 {
-		argsPath := os.Args[1]
-		if argsPath != "" {
-			fmt.Println(argsPath)
-			path = argsPath
-		}
+	if *verbose {
+		log.SetOutput(&lumberjack.Logger{
+			Filename:   *logFile,
+			MaxSize:    *logMaxSize, // megabytes
+			MaxBackups: *logMaxBackups,
+			MaxAge:     *logMaxAge, //days
+		})
 	}
-	http.HandleFunc("/", detector)
 
+	http.HandleFunc("/", detector)
 	err := http.ListenAndServe(":"+port, nil)
 	checkError(err)
 }
