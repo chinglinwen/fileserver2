@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	ospath "path"
 	"regexp"
 	"strings"
+
+	"github.com/chinglinwen/log"
 )
 
 //concern for name collision, filename need to be unique
@@ -30,14 +31,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	delete := r.FormValue("delete")
-	if delete == "yes" {
+	if len(delete) != 0 {
 		if targetFile == "" {
-			fmt.Fprintln(w, "filename not specified")
+			log.Println(w, "filename not specified")
 			return
 		}
 		err := os.RemoveAll(fileurl)
 		if err != nil {
-			fmt.Fprintln(w, err)
+			log.Println(w, err)
 			return
 		}
 		fmt.Fprintf(w, "file: %v deleted\n", targetFile)
@@ -45,17 +46,13 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	truncate := r.FormValue("truncate")
-
-	flags := os.O_APPEND | os.O_WRONLY | os.O_CREATE
-	if truncate == "yes" {
-		flags = flags | os.O_TRUNC
-	}
+	appendmode := r.FormValue("append")
+	flags := mode(len(appendmode) != 0)
 
 	data := r.FormValue("data")
 	if data != "" {
 		if targetFile == "" {
-			fmt.Fprintln(w, "filename not specified")
+			log.Println(w, "filename not specified")
 			return
 		}
 		d := strings.NewReader(data)
@@ -63,7 +60,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		dir := ospath.Dir(fileurl)
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
-			fmt.Fprintln(w, "mkdir error %v\n", err)
+			fmt.Fprintf(w, "mkdir error %v\n", err)
 			return
 		}
 
@@ -76,13 +73,13 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		n, err := io.Copy(out, d)
 		if err != nil {
-			fmt.Fprintln(w, err)
+			log.Println(w, err)
 			return
 		}
 
-		var note string
-		if truncate == "yes" {
-			note = "( truncated )"
+		note := "(default truncate if file exist)"
+		if len(appendmode) != 0 {
+			note = "( appendmode )"
 		}
 		fmt.Fprintf(w, "Files uploaded successfully : %v %v bytes %v\n", targetFile, n, note)
 		log.Println(ip, uri, targetFile, "created")
@@ -92,7 +89,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	// no bigger than 10G
 	err := r.ParseMultipartForm(10000000000)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		log.Println(w, err)
 		return
 	}
 
@@ -106,10 +103,10 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, _ := range files {
+	for i := range files {
 		file, err := files[i].Open()
 		if err != nil {
-			fmt.Fprintln(w, err)
+			log.Println(w, err)
 			continue
 		}
 		defer file.Close()
@@ -133,7 +130,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		dir := ospath.Dir(fileurl)
 		err = os.MkdirAll(dir, 0755)
 		if err != nil {
-			fmt.Fprintln(w, "mkdir error %v\n", err)
+			log.Println(w, "mkdir error %v\n", err)
 			continue
 		}
 
@@ -146,15 +143,24 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		n, err := io.Copy(out, file)
 		if err != nil {
-			fmt.Fprintln(w, err)
+			log.Println(w, err)
 			continue
 		}
 
-		var note string
-		if truncate == "yes" {
-			note = "( truncated )"
+		note := "(default truncate if file exist)"
+		if len(appendmode) != 0 {
+			note = "( appendmode )"
 		}
 		fmt.Fprintf(w, "Files uploaded successfully : %v %v bytes %v\n", f, n, note)
 		log.Println(ip, uri, f, "created")
 	}
+}
+
+func mode(append bool) int {
+	flags := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	if append {
+		flags = flags | os.O_APPEND
+		flags -= os.O_TRUNC
+	}
+	return flags
 }
