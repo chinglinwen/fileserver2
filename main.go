@@ -17,7 +17,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&port, "port", "8000", "Port number")
+	flag.StringVar(&port, "port", "9000", "Port number")
 	flag.StringVar(&path, "path", ".", "File server path")
 	version := flag.Bool("version", false, "Show version")
 	author := flag.Bool("author", false, "Show author")
@@ -32,7 +32,7 @@ func main() {
 
 	//Display version info.
 	if *version {
-		fmt.Println("Fileserver2 version=1.2.0, 2017-2-14")
+		fmt.Println("Fileserver2 version=1.3.0, 2020-7-7")
 		os.Exit(0)
 	}
 
