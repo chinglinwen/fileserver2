@@ -4,7 +4,7 @@ A http download and upload server
 
 ## Features
 
-* Default to append
+* Default to truncate if file exist
 * Delete support
 * Truncate support
 * Form value upload
