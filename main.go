@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"log"
@@ -28,6 +29,10 @@ func main() {
 	logMaxAge := flag.Int("logmaxage", 28, "log max age (days)")
 	logMaxBackups := flag.Int("logmaxbackups", 3, "log max backups number")
 
+	auth := flag.Bool("auth", false, "enable basic auth")
+	user := flag.String("user", "admin", "user name for basic auth")
+	password := flag.String("password", "Admin@Qax123_@", "password for basic auth")
+
 	flag.Parse()
 
 	//Display version info.
@@ -51,8 +56,11 @@ func main() {
 		})
 	}
 
-	http.HandleFunc("/", detector)
-	err := http.ListenAndServe(":"+port, nil)
+	handler := http.Handler(http.HandlerFunc(detector))
+	if *auth {
+		handler = BasicAuthMiddleware(handler, *user, *password)
+	}
+	err := http.ListenAndServe(":"+port, handler)
 	checkError(err)
 }
 
@@ -77,4 +85,41 @@ func checkError(err error) {
 		fmt.Println("Fatal error ", err.Error())
 		os.Exit(1)
 	}
+}
+
+// BasicAuthMiddleware is a middleware that provides basic auth
+func BasicAuthMiddleware(next http.Handler, username, password string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth == "" {
+			w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Check if the Authorization header is in the correct format
+		parts := strings.SplitN(auth, " ", 2)
+		if len(parts) != 2 || parts[0] != "Basic" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Decode the base64 encoded credentials
+		decoded, err := base64.StdEncoding.DecodeString(parts[1])
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Check the username and password
+		creds := strings.SplitN(string(decoded), ":", 2)
+		if len(creds) != 2 || creds[0] != username || creds[1] != password {
+			w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Proceed with the next handler
+		next.ServeHTTP(w, r)
+	})
 }
