@@ -30,6 +30,7 @@ func main() {
 	logMaxBackups := flag.Int("logmaxbackups", 3, "log max backups number")
 
 	auth := flag.Bool("auth", false, "enable basic auth")
+	downloadAuth := flag.Bool("downloadauth", false, "enable download basic auth")
 	user := flag.String("user", "admin", "user name for basic auth")
 	password := flag.String("password", "Admin@Qax123_@", "password for basic auth")
 
@@ -56,27 +57,48 @@ func main() {
 		})
 	}
 
-	handler := http.Handler(http.HandlerFunc(detector))
-	if *auth {
-		handler = BasicAuthMiddleware(handler, *user, *password)
-	}
-	err := http.ListenAndServe(":"+port, handler)
+	s := server{auth: *auth, downloadAuth: *downloadAuth, user: *user, pass: *password}
+	err := http.ListenAndServe(":"+port, s)
 	checkError(err)
 }
 
-func detector(w http.ResponseWriter, r *http.Request) {
+type server struct {
+	auth         bool
+	downloadAuth bool
+	user         string
+	pass         string
+}
+
+func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// print logs
+	ip := strings.Split(r.RemoteAddr, ":")[0]
+
 	if strings.HasSuffix(r.RequestURI, "uploadapi") {
+		if s.auth {
+			log.Printf("uploadapi(auth), ip: %v, uri: %v, visited", ip, r.RequestURI)
+			BasicAuthMiddleware(http.Handler(http.HandlerFunc(uploadHandler)), s.user, s.pass).ServeHTTP(w, r)
+			return
+		}
+		log.Printf("uploadapi(noauth), ip: %v, uri: %v, visited", ip, r.RequestURI)
 		uploadHandler(w, r)
 		return
 	}
-	// print logs
-	ip := strings.Split(r.RemoteAddr, ":")[0]
-	log.Println(ip, r.RequestURI, "visited")
-
 	if strings.HasSuffix(r.RequestURI, "upload") {
+		if s.auth {
+			log.Printf("uploadpage(auth), ip: %v, uri: %v, visited", ip, r.RequestURI)
+			BasicAuthMiddleware(http.Handler(http.HandlerFunc(uploadPageHandler)), s.user, s.pass).ServeHTTP(w, r)
+			return
+		}
+		log.Printf("uploadpage(noauth), ip: %v, uri: %v, visited", ip, r.RequestURI)
 		uploadPageHandler(w, r)
 		return
 	}
+	if s.downloadAuth {
+		log.Printf("dwonload(auth), ip: %v, uri: %v, visited", ip, r.RequestURI)
+		BasicAuthMiddleware(http.FileServer(http.Dir(path)), s.user, s.pass).ServeHTTP(w, r)
+		return
+	}
+	log.Printf("dwonload(noauth), ip: %v, uri: %v, visited", ip, r.RequestURI)
 	http.FileServer(http.Dir(path)).ServeHTTP(w, r)
 }
 
@@ -94,6 +116,7 @@ func BasicAuthMiddleware(next http.Handler, username, password string) http.Hand
 		if auth == "" {
 			w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Printf("auth failed, no header\n")
 			return
 		}
 
@@ -101,6 +124,7 @@ func BasicAuthMiddleware(next http.Handler, username, password string) http.Hand
 		parts := strings.SplitN(auth, " ", 2)
 		if len(parts) != 2 || parts[0] != "Basic" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Printf("auth failed, invalid header\n")
 			return
 		}
 
@@ -108,6 +132,7 @@ func BasicAuthMiddleware(next http.Handler, username, password string) http.Hand
 		decoded, err := base64.StdEncoding.DecodeString(parts[1])
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Printf("auth failed, not base64\n")
 			return
 		}
 
@@ -116,6 +141,7 @@ func BasicAuthMiddleware(next http.Handler, username, password string) http.Hand
 		if len(creds) != 2 || creds[0] != username || creds[1] != password {
 			w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Printf("auth failed, incorrect password\n")
 			return
 		}
 
