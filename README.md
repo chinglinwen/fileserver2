@@ -15,7 +15,7 @@ A http download and upload server
 ## Install
 
 ```
-go get github.com/chinglinwen/fileserver2
+go install github.com/chinglinwen/fileserver2
 ```
 
 ## Examples
